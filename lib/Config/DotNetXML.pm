@@ -60,6 +60,12 @@ The default is C<%appSettings>, the name should not have the type specifier.
 Use a different filename from which to get the settings.  The default is the
 program name with '.config' appended.
 
+=item Section
+
+By default the configuration is taken from the 'appSettings' section of the
+file - however this can be changed by this parameter. 
+See L<Config::DotNetXML::Parser> for details on named sections.
+
 =back
 
 If you don't want or need the import you should use the L<Config::DotNetXML::Parser>
@@ -80,7 +86,7 @@ BEGIN
 
 use vars qw($VERSION);
 
-($VERSION) = q$Revision: 1.2 $ =~ /([\d.]+)/;
+($VERSION) = q$Revision: 1.3 $ =~ /([\d.]+)/;
 
 sub import
 {
@@ -100,7 +106,11 @@ sub import
    }
    else
    {
-      $package = caller(0);
+
+      if ( $package = caller(0) eq 'Test::More')
+      {
+         $package = caller(1);
+      }
    }
 
    my $varname;
@@ -126,13 +136,20 @@ sub import
    }
 
 
+   my $section = 'appSettings';
+
+   if ( exists $Args{Section} )
+   {
+      $section = $Args{Section}
+   }
+
    my $parser;
 
    my $appsettings = {};
    if ( -f $file and -r $file )
    {
       $parser = Config::DotNetXML::Parser->new(File => $file);
-      $appsettings = $parser->data();
+      $appsettings = $parser->getConfigSection($section);
    }
 
    *{"$package\::$varname"} = $appsettings;
