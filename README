@@ -23,8 +23,8 @@ configuration between Perl and C# programs.
 Prerequisites
 =============
 
-This module requires XML::Parser to operate.  It has been tested with version
-2.34 of that module but should work with recent releases.
+This module requires XML::XPath to operate.  This is a change from the initial
+release that implemented its own Parser using XML::Parser.
 
 Installation
 ============
