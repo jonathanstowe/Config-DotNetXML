@@ -1,10 +1,10 @@
 package Config::DotNetXML::Parser;
 
-use XML::Parser;
+use XML::XPath;
 
 our $VERSION;
 
-($VERSION) = q$Revision: 1.2 $ =~ /([\d.]+)/;
+($VERSION) = q$Revision: 1.3 $ =~ /([\d.]+)/;
 
 =head1 NAME
 
@@ -25,7 +25,7 @@ This module implements the parsing for Config::DotNetXML it is designed to
 be used by that module but can be used on its own if the import feature is
 not required.
 
-THe configuration files are XML documents like:
+The configuration files are XML documents like:
 
    <configuration>
       <appSettings>
@@ -35,7 +35,25 @@ THe configuration files are XML documents like:
 
 and the configuration is returned as a hash reference of the <add /> elements
 with the key and value attributes providing respectively the key and value
-to the hash.
+to the hash. 'appSettings' is the default section and is the one that is
+exported into your namepace if you asked Config::DotNetXML to do so.
+
+Named sections can also be introduced:
+
+   <configuration>
+     <configSections>
+        <section name="CustomSection" />
+     </configSections>
+
+     <CustomSection>
+       <add key="msg" value="Bar" />
+     </myCustomSection>
+   </configuration>
+
+And the items in the named section can be accessed via the getConfigSection()
+method.  Custom sections can appear in the same file as the appSettings default.
+It should be noted that single value sections and custom section handlers are
+currently not supported. 
 
 =head2 METHODS
 
@@ -66,13 +84,14 @@ sub new
 
    my $self = bless {}, $class;
 
+   $self->parser(XML::XPath->new());
+
    if ( exists $Args{File} )
    {
       $self->File($Args{File});
    }
 
 
-   $self->parser(XML::Parser->new(Style => __PACKAGE__));
 
    if ( defined $self->File() )
    {
@@ -111,26 +130,80 @@ sub parse
       $self->File($file);
    }
 
-   $self->data($self->parser->parsefile($self->File()));
+   my @sections = qw(appSettings);
+
+   my $configs = $self->parser()->find('/configuration/configSections/section');
+
+
+   my $data = {};
+
+   foreach my $section ( $configs->get_nodelist() )
+   {
+      push @sections,$section->getAttribute('name');
+   }
+
+   foreach my $section ( @sections )
+   {
+      my $adds = $self->parser()->find("/configuration/$section/add");
+
+      if ( defined $adds )
+      {
+         foreach my $add ( $adds->get_nodelist() )
+         {
+            my $key = $add->getAttribute('key');
+            my $value =  $add->getAttribute('value');
+   
+            $data->{$section}->{$key} = $value;
+         }
+      }
+   }  
+
+   $self->configData($data);
 }
 
 =item data
 
-Returns or sets the parsed data - this will be undefined if parse() has not
-previously been called.
+Returns parsed data from the default (appSettings) section - this will be 
+undefined if parse() has not previously been called or there is no appSettings
+section in the configuration.
 
 =cut
 
 sub data
 {
-   my ( $self, $data ) = @_;
+   my ( $self,$data ) = @_;
+   return $self->getConfigSection('appSettings') || {}; 
+}
 
-   if ( defined $data )
-   {
-      $self->{_data} = $data;
-   }
+=item getConfigSection
 
-   return $self->{_data}; 
+Returns the named configuration section or a false value if there is no such 
+section.
+
+=cut
+
+sub getConfigSection
+{
+   my ( $self, $section ) = @_;
+
+   return $self->configData()->{$section};
+}
+
+sub configData
+{
+    my ( $self, $data ) = @_;
+
+    if ( defined $data )
+    {
+       $self->{_data} = $data;
+    }
+
+    if ( not exists $self->{_data} )
+    {
+       $self->{_data} = {};
+    }
+
+    return $self->{_data};
 }
 
 =item File
@@ -148,55 +221,10 @@ sub File
 
     if ( defined $file )
     {
-       $self->{_file} = $file;
+       $self->parser()->set_filename($file);
     }
 
-    return $self->{_file};
-}
-
-sub Init
-{
-   my ($expat) = @_;
-
-   $expat->{__PACKAGE__}->{_appsettings}    = {};
-   $expat->{__PACKAGE__}->{_in_config}      = 0;
-   $expat->{__PACKAGE__}->{_in_appsettings} = 0;
-}
-
-sub Final
-{
-   my ($expat) = @_;
-
-   return $expat->{__PACKAGE__}->{_appsettings};
-}
-
-sub Start
-{
-   my ( $expat, $element, %attr ) = @_;
-
-   $expat->{__PACKAGE__}->{_in_config}++ if $element eq 'configuration';
-   $expat->{__PACKAGE__}->{_in_appSettings}++ if $element eq 'appSettings';
-
-   if (  $expat->{__PACKAGE__}->{_in_config} && 
-         $expat->{__PACKAGE__}->{_in_appSettings}) 
-   {
-      if ( $element eq 'add' )
-      {
-         if ( exists $attr{key} and exists $attr{value} )
-         {
-             $expat->{__PACKAGE__}->{_appsettings}->{$attr{key}} = $attr{value};
-         }
-      }
-   }
-}
-
-sub End
-{
-   my ( $expat, $element) = @_;
-
-   $expat->{__PACKAGE__}->{_in_config}-- if $element eq 'configuration';
-   $expat->{__PACKAGE__}->{_in_appSettings}-- if $element eq 'appSettings';
-
+    return $self->parser()->get_filename();
 }
 
 
@@ -204,10 +232,14 @@ sub End
 
 Those familiar with the .NET Framework will realise that this is not a
 complete implementation of all of the facilities offered by the 
-System.Configuration class: this will come later.
+System.Configuration class: specifically custom section handlers, and
+single value sections - these should come later.
 
-Some may consider the wanton exporting of names into the calling package
-to be a bad thing.
+The observant will have noticed that the use of configuration sections 
+causes the file not to be strictly valid XML inasmuch as the schema cannot
+be defined prior to parsing - this is unfortunately the way that the .NET
+framework has it specified, the named sections should probably be dealt with
+using a 'name' attribute instead.
 
 =head1 AUTHOR
 
@@ -222,7 +254,5 @@ Copyright (c) 2004 Jonathan Stowe
 This module can be distributed under the same terms as Perl itself.
 
 =cut
-
-1;
 
 1;
