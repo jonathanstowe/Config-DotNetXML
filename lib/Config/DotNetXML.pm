@@ -80,7 +80,7 @@ BEGIN
 
 use vars qw($VERSION);
 
-($VERSION) = q$Revision: 1.1 $ =~ /([\d.]+)/;
+($VERSION) = q$Revision: 1.2 $ =~ /([\d.]+)/;
 
 sub import
 {
@@ -146,6 +146,10 @@ System.Configuration class: this will come later.
 
 Some may consider the wanton exporting of names into the calling package
 to be a bad thing.
+
+=head1 SEE ALSO
+
+perl, .NET Framework documentation
 
 =head1 AUTHOR
 
