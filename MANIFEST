@@ -4,6 +4,7 @@ README
 lib/Config/DotNetXML.pm
 lib/Config/DotNetXML/Parser.pm
 t/1.t
+t/1.t.config
 t/2.t
 t/3.t
 t/4.t
