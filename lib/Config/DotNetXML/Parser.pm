@@ -4,7 +4,7 @@ use XML::XPath;
 
 our $VERSION;
 
-($VERSION) = q$Revision: 1.3 $ =~ /([\d.]+)/;
+($VERSION) = q$Revision: 1.4 $ =~ /([\d.]+)/;
 
 =head1 NAME
 
@@ -249,7 +249,7 @@ Jonathan Stowe <jns@gellyfish.com>
 
 This library is free software - it comes with no warranty whatsoever.
 
-Copyright (c) 2004 Jonathan Stowe
+Copyright (c) 2004, 2005 Jonathan Stowe
 
 This module can be distributed under the same terms as Perl itself.
 

@@ -86,7 +86,7 @@ BEGIN
 
 use vars qw($VERSION);
 
-($VERSION) = q$Revision: 1.3 $ =~ /([\d.]+)/;
+($VERSION) = q$Revision: 1.4 $ =~ /([\d.]+)/;
 
 sub import
 {
@@ -107,12 +107,13 @@ sub import
    else
    {
 
-      if ( $package = caller(0) eq 'Test::More')
+      if ( ($package = caller(0)) eq 'Test::More')
       {
          $package = caller(1);
       }
    }
 
+   
    my $varname;
 
    if ( exists $Args{VarName} )
@@ -176,7 +177,7 @@ Jonathan Stowe <jns@gellyfish.com>
 
 This library is free software - it comes with no warranty whatsoever.
 
-Copyright (c) 2004 Jonathan Stowe
+Copyright (c) 2004, 2005 Jonathan Stowe
 
 This module can be distributed under the same terms as Perl itself.
 
