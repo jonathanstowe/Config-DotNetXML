@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+
+# simple example of default behaviour;
+
+use strict;
+
+use Config::DotNetXML;
+
+our %appSettings;
+
+print $appSettings{Foo},"\n";

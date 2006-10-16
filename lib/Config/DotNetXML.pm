@@ -86,7 +86,7 @@ BEGIN
 
 use vars qw($VERSION);
 
-($VERSION) = q$Revision: 1.4 $ =~ /([\d.]+)/;
+$VERSION = '1.5';
 
 sub import
 {

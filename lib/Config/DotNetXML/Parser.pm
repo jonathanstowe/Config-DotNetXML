@@ -1,10 +1,11 @@
 package Config::DotNetXML::Parser;
 
 use XML::XPath;
+use strict;
 
 our $VERSION;
 
-($VERSION) = q$Revision: 1.4 $ =~ /([\d.]+)/;
+$VERSION = '1.5';
 
 =head1 NAME
 
@@ -101,6 +102,12 @@ sub new
    return $self;
 }
 
+=item parser
+
+Convenience accessor/mutator for the underlying XML parser.
+
+=cut
+
 sub parser
 {
    my ( $self, $parser ) = @_;
@@ -188,6 +195,14 @@ sub getConfigSection
 
    return $self->configData()->{$section};
 }
+
+=item configData
+
+Accessor/Mutator for the underlying parsed configuration data, you will
+almost certainly be accessing the configuration through the methods of
+L<Config::DotNetXML> rather than using this directly.
+
+=cut
 
 sub configData
 {

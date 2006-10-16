@@ -1,0 +1,10 @@
+1.4  2005-11-29 15:45:37
+
+ * Fixed bug in checking package to import into
+ * Added test
+
+1.5 Mon Oct 16 10:27:11 BST 2006
+
+ * Added examples
+ * Added strict to Config::DotNetXML::Parser
+ * Added POD tests
