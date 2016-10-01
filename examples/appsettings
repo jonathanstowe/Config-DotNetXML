@@ -1,8 +1,9 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # simple example of default behaviour;
 
 use strict;
+use warnings;
 
 use Config::DotNetXML;
 
