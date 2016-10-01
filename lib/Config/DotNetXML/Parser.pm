@@ -1,11 +1,10 @@
 package Config::DotNetXML::Parser;
 
-use XML::XPath;
 use strict;
+use warnings;
+use XML::XPath;
 
-our $VERSION;
-
-$VERSION = '1.5';
+our $VERSION = '1.5';
 
 =head1 NAME
 
@@ -258,13 +257,13 @@ using a 'name' attribute instead.
 
 =head1 AUTHOR
 
-Jonathan Stowe <jns@gellyfish.com>
+Jonathan Stowe <jns@gellyfish.co.uk>
 
 =head1 COPYRIGHT
 
 This library is free software - it comes with no warranty whatsoever.
 
-Copyright (c) 2004, 2005 Jonathan Stowe
+Copyright (c) 2004, 2005, 2016 Jonathan Stowe
 
 This module can be distributed under the same terms as Perl itself.
 
